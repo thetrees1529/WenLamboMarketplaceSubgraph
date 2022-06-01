@@ -1,0 +1,59 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: undefined
+    network: mainnet
+    source:
+      address: "0x10e90fB936e944c50af954F77cb048E25aD8D9D6"
+      abi: BuyItNow
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Cancelled
+        - FeeSet
+        - FeesSplit
+        - FeesTaken
+        - Initialised
+        - Initialised1
+        - Listed
+        - OwnershipTransferred
+        - PayeeAdded
+        - PayeesDeleted
+        - Payment
+        - PriceEdited
+        - Sold
+      abis:
+        - name: BuyItNow
+          file: ./abis/BuyItNow.json
+      eventHandlers:
+        - event: Cancelled(uint256)
+          handler: handleCancelled
+        - event: FeeSet((uint256,uint256))
+          handler: handleFeeSet
+        - event: FeesSplit(uint256)
+          handler: handleFeesSplit
+        - event: FeesTaken(uint256)
+          handler: handleFeesTaken
+        - event: Initialised(address)
+          handler: handleInitialised
+        - event: Initialised(address,address)
+          handler: handleInitialised1
+        - event: Listed(uint256,uint256,uint256,uint256)
+          handler: handleListed
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PayeeAdded((address,uint256))
+          handler: handlePayeeAdded
+        - event: PayeesDeleted()
+          handler: handlePayeesDeleted
+        - event: Payment(address,uint256)
+          handler: handlePayment
+        - event: PriceEdited(uint256,uint256)
+          handler: handlePriceEdited
+        - event: Sold(uint256,address)
+          handler: handleSold
+      file: ./src/buy-it-now.ts
