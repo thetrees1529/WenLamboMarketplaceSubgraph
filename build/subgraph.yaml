@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: BuyItNow
@@ -21,7 +21,7 @@ dataSources:
         - Sold
       abis:
         - name: IBuyItNow
-          file: ./abis/IBuyItNow.json
+          file: BuyItNow\abis\IBuyItNow.json
       eventHandlers:
         - event: Cancelled(uint256)
           handler: handleCancelled
@@ -33,4 +33,4 @@ dataSources:
           handler: handlePriceEdited
         - event: Sold(uint256,uint256,address)
           handler: handleSold
-      file: ./src/buy-it-now.ts
+      file: BuyItNow\BuyItNow.wasm

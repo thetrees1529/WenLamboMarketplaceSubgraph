@@ -1,84 +1,70 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { Address, BigInt } from "@graphprotocol/graph-ts"
 import {
-  BuyItNow,
   Cancelled,
   FeeSet,
-  FeesSplit,
-  FeesTaken,
-  Initialised,
-  Initialised1,
   Listed,
-  OwnershipTransferred,
-  PayeeAdded,
-  PayeesDeleted,
-  Payment,
   PriceEdited,
   Sold
-} from "../generated/BuyItNow/BuyItNow"
-import { ExampleEntity } from "../generated/schema"
+} from "../generated/BuyItNow/IBuyItNow"
+import { Lambo, Listing, NewFee, User } from "../generated/schema"
 
-export function handleCancelled(event: Cancelled): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.listingId = event.params.listingId
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.onERC721Received(...)
-  // - contract.owner(...)
+export function handleListed(event: Listed): void {
+  const listing = new Listing(event.params.listingId.toString())
+  listing.lambo = getOrCreateLambo(event.params.tokenId).id
+  listing.price = event.params.price
+  listing.expiresAt = event.params.expiresAt
+  listing.seller = getOrCreateUser(event.params.seller).id
+  listing.cancelled = false
+  listing.save()
 }
 
-export function handleFeeSet(event: FeeSet): void {}
+export function handlePriceEdited(event: PriceEdited): void {
+  const listing = getListing(event.params.listingId)!
+  listing.price = event.params.newPrice
+  listing.save()
+}
 
-export function handleFeesSplit(event: FeesSplit): void {}
+export function handleSold(event: Sold): void {
+  const listing = getListing(event.params.listingId)!
+  listing.soldTo = getOrCreateUser(event.params.buyer).id
+  listing.feesTaken = event.params.feesTaken
+  listing.save()
+}
 
-export function handleFeesTaken(event: FeesTaken): void {}
+export function handleCancelled(event: Cancelled): void {
+  const listing = getListing(event.params.listingId)!
+  listing.cancelled = true
+  listing.save()
+}
 
-export function handleInitialised(event: Initialised): void {}
+export function handleFeeSet(event: FeeSet): void {
+  const newFee = new NewFee(`${event.transaction.hash.toHexString()} ${event.transactionLogIndex}`)
+  newFee.newFeeNumerator = event.params.fee.numerator
+  newFee.newFeeDenominator = event.params.fee.denominator
+  newFee.blockNumber = event.block.number
+  newFee.save()
+}
 
-export function handleInitialised1(event: Initialised1): void {}
+function getOrCreateLambo(tokenId: BigInt): Lambo {
+  const id = tokenId.toString()
+  let lambo = Lambo.load(id)
+  if(!lambo) {
+    lambo = new Lambo(id)
+    lambo.save()
+  }
+  return lambo
+}
 
-export function handleListed(event: Listed): void {}
+function getOrCreateUser(address: Address): User {
+  const id = address.toHexString()
+  let user = User.load(id)
+  if(!user) {
+    user = new User(id)
+    user.save()
+  }
+  return user
+}
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
-
-export function handlePayeeAdded(event: PayeeAdded): void {}
-
-export function handlePayeesDeleted(event: PayeesDeleted): void {}
-
-export function handlePayment(event: Payment): void {}
-
-export function handlePriceEdited(event: PriceEdited): void {}
-
-export function handleSold(event: Sold): void {}
+function getListing(listingId: BigInt): Listing | null {
+  return Listing.load(listingId.toString())
+}

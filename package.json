@@ -7,7 +7,10 @@
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ thetrees1529/WenLamboMarketplaceSubgraph",
     "create-local": "graph create --node http://localhost:8020/ thetrees1529/WenLamboMarketplaceSubgraph",
     "remove-local": "graph remove --node http://localhost:8020/ thetrees1529/WenLamboMarketplaceSubgraph",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 thetrees1529/WenLamboMarketplaceSubgraph"
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 thetrees1529/WenLamboMarketplaceSubgraph",
+    "create-prod": "graph create --node http://77.68.103.253:8020/ thetrees1529/WenLamboMarketplaceSubgraph",
+    "remove-prod": "graph remove --node http://77.68.103.253:8020/ thetrees1529/WenLamboMarketplaceSubgraph",
+    "deploy-prod": "graph deploy --node http://77.68.103.253:8020/ --ipfs http://77.68.103.253:5001 thetrees1529/WenLamboMarketplaceSubgraph"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.30.1",
